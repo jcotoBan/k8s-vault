@@ -1,5 +1,5 @@
 # linode ansible playbook
-- name: focalboard setup
+- name: K8s/vault setup
   hosts: localhost
   connection: local
   gather_facts: true
