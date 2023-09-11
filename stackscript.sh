@@ -22,9 +22,9 @@ trap "cleanup $? $LINENO" EXIT
 #<UDF name="cluster_node_plan" Label="The plan for your cluster nodes" oneOf="g6-dedicated-2,g6-dedicated-4,g6-dedicated-8,g6-dedicated-16,g6-dedicated-32,g6-dedicated-48,g6-dedicated-50,g6-dedicated-56,g6-dedicated-64", default="g6-dedicated-8" />
 
 # git repo
-export GIT_REPO="https://github.com/jcotoBan/marketplace-apps.git"
-export WORK_DIR="/tmp/marketplace-apps" 
-export MARKETPLACE_APP="apps/linode-marketplace-focalboard"
+export GIT_REPO="https://github.com/jcotoBan/k8s-vault.git"
+export WORK_DIR="/tmp/k8s-vault" 
+export MARKETPLACE_APP="ansiblePlaybook"
 
 # enable logging
 exec > >(tee /dev/ttyS0 /var/log/stackscript.log) 2>&1
@@ -93,10 +93,8 @@ function run {
 
   # clone repo and set up ansible environment
 
-git -C /tmp clone --depth 1 --filter=blob:none ${GIT_REPO} --branch experimental --sparse
+git -C /tmp clone ${GIT_REPO}
 cd ${WORK_DIR}
-git sparse-checkout init --cone
-git sparse-checkout set apps/linode-marketplace-focalboard apps/linode_helpers
 
   # venv
   cd ${WORK_DIR}/${MARKETPLACE_APP}
