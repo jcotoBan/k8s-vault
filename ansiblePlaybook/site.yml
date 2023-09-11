@@ -8,5 +8,4 @@
   vars_files:
     - group_vars/linode/vars
   roles:
-    - common
     - LKE

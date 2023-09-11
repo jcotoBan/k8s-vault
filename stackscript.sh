@@ -2,17 +2,6 @@
 set -e
 trap "cleanup $? $LINENO" EXIT
 
-##Linode/SSH security settings
-#<UDF name="user_name" label="The limited sudo user to be created for the Linode" default="">
-#<UDF name="password" label="The password for the limited sudo user" example="an0th3r_s3cure_p4ssw0rd" default="">
-#<UDF name="disable_root" label="Disable root access over SSH?" oneOf="Yes,No" default="No">
-#<UDF name="pubkey" label="The SSH Public Key that will be used to access the Linode (Recommended)" default="">
-
-## Domain Settings
-#<UDF name="token_password" label="Your Linode API token. This is needed to create your WordPress server's DNS records" default="">
-#<UDF name="subdomain" label="Subdomain" example="The subdomain for the DNS record: www (Requires Domain)" default="">
-#<UDF name="domain" label="Domain" example="The domain for the DNS record: example.com (Requires API token)" default="">
-
 ## K8s-vault
 #<UDF name="pat_token_password" Label="Linode API token" />
 #<UDF name="cluster_label" Label="A label to identify the LKE cluster" />
@@ -33,31 +22,11 @@ function cleanup {
   if [ -d "${WORK_DIR}" ]; then
     rm -rf ${WORK_DIR}
   fi
-
 }
 
 function udf {
 
   local group_vars="${WORK_DIR}/${MARKETPLACE_APP}/group_vars/linode/vars"
-  
-  if [[ -n ${USER_NAME} ]]; then
-    echo "username: ${USER_NAME}" >> ${group_vars};
-  else echo "No username entered";
-  fi
-
-    if [[ -n ${DISABLE_ROOT} ]]; then
-    echo "disable_root: ${DISABLE_ROOT}" >> ${group_vars};
-  fi
-
-  if [[ -n ${PASSWORD} ]]; then
-    echo "password: ${PASSWORD}" >> ${group_vars};
-  else echo "No password entered";
-  fi
-
-  if [[ -n ${PUBKEY} ]]; then
-    echo "pubkey: ${PUBKEY}" >> ${group_vars};
-  else echo "No pubkey entered";
-  fi
 
   #k8s-vault vars
 
