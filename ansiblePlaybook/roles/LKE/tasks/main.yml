@@ -1,0 +1,21 @@
+- name: Cluster creation
+  block:
+  - name: Create cluster
+    linode.cloud.lke_cluster:
+      label: {{ cluster_label }}
+      region: {{ cluster_dc }}
+      k8s_version: {{ cluster_version }}
+      node_pools:
+        - type: {{ cluster_node_plan }}
+          count: {{ cluster_nodes }}
+      state: present
+      register: kubeconfig
+
+
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: testing
+    api_version: v1
+    kind: Namespace
+    kubeconfig: {{ kubeconfig | b64decode }}
+    state: present
