@@ -9,12 +9,6 @@
     state: present
   register: cluster_creation_result
 
-- name: Store kubeconfig in a variable
-  set_fact:
-    kubeconfig_data: "{{ cluster_creation_result.kubeconfig }}"
-  when: cluster_creation_result.kubeconfig is defined
-
-
 - name: Create a k8s namespace
   kubernetes.core.k8s:
     name: testing
