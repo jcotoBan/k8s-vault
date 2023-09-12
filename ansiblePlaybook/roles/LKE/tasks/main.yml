@@ -25,4 +25,4 @@
       kind: Namespace
       metadata:
         name: mynamespace
-  kubeconfig: "{{ cluster_creation_result.kubeconfig | b64decode }}"
+    kubeconfig: "{{ cluster_creation_result.kubeconfig | b64decode }}"
