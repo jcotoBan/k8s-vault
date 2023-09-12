@@ -30,7 +30,7 @@ function udf {
 
   #k8s-vault vars
 
-  export LINODE_TOKEN="$PAT_TOKEN_PASSWORD"
+  export LINODE_API_TOKEN="$PAT_TOKEN_PASSWORD"
   
   if [[ -n ${CLUSTER_LABEL} ]]; then
     echo "cluster_label: ${CLUSTER_LABEL}" >> ${group_vars};
