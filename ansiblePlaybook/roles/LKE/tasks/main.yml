@@ -13,7 +13,7 @@
     label: "{{ cluster_label }}"
   register: kubeconfig
   retries: 20
-  delay: 15
+  delay: 30
 
 - name: Create Kubeconfig directory if it does not exist
   file:
@@ -22,7 +22,7 @@
 
 - name: Save Kubeconfig to a File
   copy:
-    content: "{{ kubeconfig | b64decode }}"
+    content: "{{ kubeconfig | b64encode }}"
     dest: /root/.kube/config
 
 - name: Create a Kubernetes Namespace
