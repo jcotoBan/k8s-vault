@@ -11,7 +11,7 @@
 - name: Fetch Kubeconfig
   linode.cloud.lke_cluster_info:
     label: "{{ cluster_label }}"
-  register: kubeconfig
+  register: output
   retries: 20
   delay: 30
 
@@ -22,7 +22,7 @@
 
 - name: Save Kubeconfig to a File
   copy:
-    content: "{{ kubeconfig }}"
+    content: "{{ output.kubeconfig | b64decode }}"
     dest: /root/.kube/config
 
 - name: Create a Kubernetes Namespace
