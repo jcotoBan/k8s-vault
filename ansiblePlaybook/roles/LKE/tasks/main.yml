@@ -7,3 +7,22 @@
     - type: "{{ cluster_node_plan }}"
       count: "{{ cluster_nodes }}"
     state: present
+  register: cluster_creation_result
+
+- name: Wait for cluster creation to complete
+  async_status:
+    jid: "{{ cluster_creation_result.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 60  
+  delay: 10   
+
+- name: Create a Kubernetes Namespace
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: mynamespace
+  kubeconfig: "{{ cluster_creation_result.kubeconfig | b64decode }}"
