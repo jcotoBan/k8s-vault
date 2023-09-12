@@ -22,7 +22,7 @@
 
 - name: Save Kubeconfig to a File
   copy:
-    content: "{{ kubeconfig | b64encode }}"
+    content: "{{ kubeconfig }}"
     dest: /root/.kube/config
 
 - name: Create a Kubernetes Namespace
