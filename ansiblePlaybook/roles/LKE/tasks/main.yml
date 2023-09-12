@@ -7,15 +7,23 @@
     - type: "{{ cluster_node_plan }}"
       count: "{{ cluster_nodes }}"
     state: present
-  register: cluster_creation_result
 
-- name: Wait for cluster creation to complete
-  async_status:
-    jid: "{{ cluster_creation_result.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  retries: 60  
-  delay: 10   
+- name: Fetch Kubeconfig
+  linode.cloud.lke_cluster_info:
+    label: "{{ cluster_label }}"
+  register: kubeconfig
+  retries: 20
+  delay: 15
+
+- name: Create Kubeconfig directory if it does not exist
+  file:
+    path: /root/.kube/
+    state: directory
+
+- name: Save Kubeconfig to a File
+  copy:
+    content: "{{ kubeconfig | b64decode }}"
+    dest: /root/.kube/config
 
 - name: Create a Kubernetes Namespace
   k8s:
@@ -25,4 +33,3 @@
       kind: Namespace
       metadata:
         name: mynamespace
-    kubeconfig: "{{ cluster_creation_result.kubeconfig | b64decode }}"
