@@ -1,3 +1,5 @@
+#Install linode cli
+
 - name: Create cluster
   linode.cloud.lke_cluster:
     label: "{{ cluster_label }}"
@@ -7,5 +9,3 @@
     - type: "{{ cluster_node_plan }}"
       count: "{{ cluster_nodes }}"
     state: present
-  register: cluster_creation_result
-
