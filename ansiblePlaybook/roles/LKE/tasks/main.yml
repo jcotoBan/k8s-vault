@@ -9,7 +9,7 @@
         - type: "{{ cluster_node_plan }}"
           count: "{{ cluster_nodes }}"
       state: present
-      register: kubeconfig
+  register: kubeconfig
 
 
 - name: Create a k8s namespace
