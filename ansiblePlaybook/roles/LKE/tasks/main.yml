@@ -42,7 +42,7 @@
     dest: /root/vault-helm
 
 - name: Deploy Vault on with local values
-  helm:
+  kubernetes.core.helm:
     name: vault
     chart_ref: /root/vault-helm
     release_namespace: vault
@@ -75,12 +75,12 @@
         name: external-secrets
 
 - name: Add external-secrets chart repo
-  helm_repository:
+  kubernetes.core.helm_repository:
     name: external-secrets
     repo_url: "https://charts.external-secrets.io"
 
 - name: Deploy External-secrets chart using values files on target
-  helm:
+  kubernetes.core.helm:
     name: external-secrets
     chart_ref: external-secrets/external-secrets
     release_namespace: external-secrets
