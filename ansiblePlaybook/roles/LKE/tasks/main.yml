@@ -82,6 +82,19 @@
     values_files:
     - /tmp/k8s-vault/ansiblePlaybook/vault-helm/values.yaml
 
+- name: Wait till the Pod vault-0 is Ready
+  kubernetes.core.k8s_info:
+    kind: Pod
+    wait: yes
+    wait_condition:
+      type: "Ready"
+      status: "True"
+    name: vault-0
+    namespace: vault
+    wait_sleep: 10
+    wait_timeout: 360
+
+
 - name: Check RC status of command executed
   kubernetes.core.k8s_exec:
     namespace: vault
