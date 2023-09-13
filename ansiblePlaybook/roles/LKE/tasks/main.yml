@@ -88,6 +88,8 @@
     pod: vault-0
     command: vault operator init
   register: command_output
+  retries: 30
+  delay: 10
   ignore_errors: True
 
 
