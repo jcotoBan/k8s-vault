@@ -13,11 +13,14 @@
     apt:
       name: apt-transport-https
       state: present
+  - name: Determine architecture
+    command: dpkg --print-architecture
+    register: architecture
   - name: Configure Helm repository
     blockinfile:
       path: /etc/apt/sources.list.d/helm-stable-debian.list
       block: |
-        deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
+        deb [arch={{ architecture.stdout }} signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
       create: yes
   - name: Update apt package cache
     apt:
