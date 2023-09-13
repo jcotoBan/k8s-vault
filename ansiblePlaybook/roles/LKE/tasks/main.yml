@@ -25,6 +25,8 @@
     content: "{{ output.kubeconfig | b64decode }}"
     dest: /root/.kube/config
 
+#Vault Setup
+
 - name: Create a Kubernetes Namespace
   k8s:
     state: present
@@ -32,4 +34,53 @@
       apiVersion: v1
       kind: Namespace
       metadata:
-        name: mynamespace
+        name: vault
+
+- name: Pull Vault helm repo
+  git:
+    repo: https://github.com/hashicorp/vault-helm.git
+    dest: /root/vault-helm
+
+- name: Deploy Vault on with local values
+  helm:
+    name: vault
+    chart_ref: /root/vault-helm
+    release_namespace: vault
+    values_files:
+    - /root/vault-helm/values.yaml
+
+- name: Check RC status of command executed
+  k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault operator init
+  register: command_output
+  ignore_errors: True
+
+
+- name: Save vault config to a File
+  copy:
+    content: "{{ command_output.stdout }}"
+    dest: /root/vault
+
+#External secrets setup
+
+- name: Create a Kubernetes Namespace
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: external-secrets
+
+- name: Add external-secrets chart repo
+  helm_repository:
+    name: external-secrets
+    repo_url: "https://charts.external-secrets.io"
+
+- name: Deploy External-secrets chart using values files on target
+  helm:
+    name: external-secrets
+    chart_ref: external-secrets/external-secrets
+    release_namespace: external-secrets
