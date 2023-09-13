@@ -8,7 +8,7 @@
       dest: /tmp/helm-signing.asc
   - name: Import Helm GPG key
     shell:
-      cmd: gpg --dearmor /tmp/helm-signing.asc | tee /usr/share/keyrings/helm.gpg > /dev/null
+      cmd: cat /tmp/helm-signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
   - name: Install transport packages
     apt:
       name: apt-transport-https
@@ -17,7 +17,7 @@
     blockinfile:
       path: /etc/apt/sources.list.d/helm-stable-debian.list
       block: |
-        deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
+        deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
       create: yes
   - name: Update apt package cache
     apt:
