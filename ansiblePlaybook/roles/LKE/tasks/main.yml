@@ -18,6 +18,7 @@
       path: /etc/apt/sources.list.d/helm-stable-debian.list
       block: |
         deb [arch={{ ansible_architecture }} signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main
+      create: yes
   - name: Update apt package cache
     apt:
       update_cache: yes
