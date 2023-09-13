@@ -39,15 +39,15 @@
 - name: Pull Vault helm repo
   git:
     repo: https://github.com/hashicorp/vault-helm.git
-    dest: /tmp/k8s-vault/vault-helm
+    dest: /tmp/k8s-vault/ansiblePlaybook/vault-helm
 
 - name: Deploy Vault on with local values
   kubernetes.core.helm:
     name: vault
-    chart_ref: /tmp/k8s-vault/vault-helm
+    chart_ref: /tmp/k8s-vault/ansiblePlaybook/vault-helm
     release_namespace: vault
     values_files:
-    - /tmp/k8s-vault/vault-helm/values.yaml
+    - /tmp/k8s-vault/ansiblePlaybook/vault-helm/values.yaml
 
 - name: Check RC status of command executed
   kubernetes.core.k8s_exec:
