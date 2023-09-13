@@ -90,7 +90,6 @@
   register: command_output
   retries: 30
   delay: 10
-  ignore_errors: True
 
 
 - name: Save vault config to a File
