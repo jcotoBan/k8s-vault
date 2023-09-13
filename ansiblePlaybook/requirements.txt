@@ -13,4 +13,3 @@ ansible-specdoc>=0.0.14
 kubernetes>=12.0.0
 PyYAML>=3.11
 jsonpatch
-helm-python
