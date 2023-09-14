@@ -87,6 +87,25 @@
       volumeBindingMode: Immediate
 
 
+- name: Create local Persistent volume
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: vault-volume
+        namespace: vault
+      spec:
+        storageClassName: local-storage
+        capacity:
+          storage: 20Gi
+        accessModes:
+        - ReadWriteOnce
+        volumeMode: Filesystem
+        hostPath:
+          path: /root/
+
 - name: Deploy Vault on with local values
   kubernetes.core.helm:
     name: vault
