@@ -113,26 +113,11 @@
     release_namespace: vault
     values_files:
     - /tmp/k8s-vault/ansiblePlaybook/vault-helm/values.yaml
-    set_values:
-    - value: server.dataStorage.storageClass=local-storage
-      value_type: string
-    - value: server.auditStorage.storageClass=local-storage
-      value_type: string
-
 
 
 - name: Wait till the Pod vault-0 is Ready
-  kubernetes.core.k8s_info:
-    kind: Pod
-    wait: yes
-    wait_condition:
-      type: "PodScheduled"
-      status: "True"
-    name: vault-0
-    namespace: vault
-    wait_sleep: 10
-    wait_timeout: 360
-
+  shell:
+    cmd: sleep 300
 
 - name: Check RC status of command executed
   kubernetes.core.k8s_exec:
