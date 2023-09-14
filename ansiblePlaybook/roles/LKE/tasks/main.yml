@@ -83,8 +83,8 @@
       kind: StorageClass
       metadata:
         name: local-storage
-        provisioner: kubernetes.io/no-provisioner
-        volumeBindingMode: WaitForFirstConsumer
+      provisioner: kubernetes.io/no-provisioner
+      volumeBindingMode: WaitForFirstConsumer
 
 
 - name: Deploy Vault on with local values
