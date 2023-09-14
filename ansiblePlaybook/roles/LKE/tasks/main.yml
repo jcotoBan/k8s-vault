@@ -115,11 +115,11 @@
     - /tmp/k8s-vault/ansiblePlaybook/vault-helm/values.yaml
 
 
-- name: Wait till the Pod vault-0 is Ready
+- name: wait till the Pod vault-0 is Ready
   shell:
     cmd: sleep 300
 
-- name: Check RC status of command executed
+- name: execute vault init and get output
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
@@ -128,11 +128,62 @@
   retries: 30
   delay: 10
 
+- name: Set environment variables for vault setup
+  set_fact:
+    unseal_key_1: "{{ command_output.stdout_lines[0] | regex_replace('Unseal Key 1: ', '') }}"
+    unseal_key_2: "{{ command_output.stdout_lines[1] | regex_replace('Unseal Key 2: ', '') }}"
+    unseal_key_3: "{{ command_output.stdout_lines[2] | regex_replace('Unseal Key 3: ', '') }}"
+    unseal_key_4: "{{ command_output.stdout_lines[3] | regex_replace('Unseal Key 4: ', '') }}"
+    unseal_key_5: "{{ command_output.stdout_lines[4] | regex_replace('Unseal Key 5: ', '') }}"
+    initial_root_token: "{{ command_output.stdout | regex_search('Initial Root Token: (.*)') | extract(1) }}"
 
-- name: Save vault config to a File
-  copy:
-    content: "{{ command_output.stdout }}"
-    dest: /root/vault
+- name: Set VAULT_ADDR Environment Variable
+  set_fact:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+
+- name: Start kubectl Port Forward
+  shell: 
+    cmd: kubectl port-forward svc/vault -n vault 8200:8200 &
+    async: 600
+    poll: 0
+    ignore_errors: yes
+
+- name: Wait for Port Forward to Start
+  ansible.builtin.wait_for:
+    host: localhost
+    port: 8200
+    delay: 10
+    timeout: 300
+    state: started
+
+- name: Unseal and login vault
+  shell: |
+    vault operator unseal $unseal_key_1
+    vault operator unseal $unseal_key_2
+    vault operator unseal $unseal_key_3
+    vault login $initial_root_token
+
+- name: Write Vault Policy
+  shell: |
+    vault policy write demo-policy -<<EOF
+    path "*"
+    {
+      capabilities = ["read"]
+    }
+    EOF
+    vault auth enable kubernetes
+
+- name: Set env required to k8s auth
+  shell: |
+    k8s_host="$(kubectl exec vault-0 -n vault -- printenv | grep KUBERNETES_PORT_443_TCP_ADDR | cut -f 2- -d "=" | tr -d " ")"
+    k8s_port="443"            
+    k8s_cacert="$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode)"
+    secret_name="$(kubectl get serviceaccount vault -n vault -o jsonpath='{.secrets[0].name}')"
+    tr_account_token="$(kubectl get secret ${secret_name} -n vault -o jsonpath='{.data.token}' | base64 --decode)"
+
+- name: Write vault Authentication 
+  shell: vault write auth/kubernetes/config token_reviewer_jwt="${tr_account_token}" kubernetes_host="https://${k8s_host}:${k8s_port}" kubernetes_ca_cert="${k8s_cacert}" disable_issuer_verification=true
+
 
 #External secrets setup
 
@@ -155,3 +206,61 @@
     name: external-secrets
     chart_ref: external-secrets/external-secrets
     release_namespace: external-secrets
+
+- name: Set env required to k8s auth endpoint
+  shell: |
+    demo_secret_name="$(kubectl get serviceaccount external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}')"
+    demo_account_token="$(kubectl get secret ${demo_secret_name} -n external-secrets -o jsonpath='{.data.token}' | base64 --decode)" 
+
+- name: Write auth endpoint
+  shell: |
+    vault write auth/kubernetes/role/demo-role \
+    bound_service_account_names=external-secrets \
+    bound_service_account_namespaces=external-secrets \
+    policies=demo-policy \
+    ttl=24h
+
+- name: Write auth endpoint
+  shell: |
+    vault write auth/kubernetes/login role=demo-role jwt=$demo_account_token iss=https://kubernetes.vault.svc.cluster.local
+
+
+- name: Create a Kubernetes SecretStorre
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: external-secrets.io/v1beta1
+      kind: SecretStore
+      metadata:
+        name: vault-backend
+      spec:
+        provider:
+        vault:
+          server: "http://vault.vault:8200"
+          path: "kv"
+          version: "v2"
+          auth:
+            kubernetes:
+              mountPath: "kubernetes"
+              role: "demo-role"
+
+- name: Create a Kubernetes ExternalSecret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: external-secrets.io/v1beta1
+      kind: ExternalSecret
+      metadata:
+        name: vault-example
+      spec:
+        secretStoreRef:
+          name: vault-backend
+          kind: SecretStore
+        target:
+          name: example-sync
+        data:
+        - secretKey: foobar
+          remoteRef:
+            key: path/to/my/secret
+            property: password
+      
