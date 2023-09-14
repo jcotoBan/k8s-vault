@@ -79,12 +79,12 @@
   kubernetes.core.k8s:
     state: present
     definition:
-    apiVersion: storage.k8s.io/v1
-    kind: StorageClass
-    metadata:
-      name: local-storage
-      provisioner: kubernetes.io/no-provisioner
-      volumeBindingMode: WaitForFirstConsumer
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: local-storage
+        provisioner: kubernetes.io/no-provisioner
+        volumeBindingMode: WaitForFirstConsumer
 
 
 - name: Deploy Vault on with local values
