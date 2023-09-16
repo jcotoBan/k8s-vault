@@ -8,4 +8,6 @@
   vars_files:
     - group_vars/linode/vars
   roles:
-    - LKE
+    - k8s_tools
+    - lke
+    - vault
