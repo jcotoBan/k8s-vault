@@ -15,37 +15,6 @@
     dest: /tmp/k8s-vault/ansiblePlaybook/vault-helm
 
 
-- name: Create Local Storage Class
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: storage.k8s.io/v1
-      kind: StorageClass
-      metadata:
-        name: local-storage
-      provisioner: kubernetes.io/no-provisioner
-      volumeBindingMode: Immediate
-
-
-- name: Create local Persistent volume
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: PersistentVolume
-      metadata:
-        name: vault-volume
-        namespace: vault
-      spec:
-        storageClassName: local-storage
-        capacity:
-          storage: 20Gi
-        accessModes:
-        - ReadWriteOnce
-        volumeMode: Filesystem
-        hostPath:
-          path: /root/
-
 - name: Deploy Vault on with local values
   kubernetes.core.helm:
     name: vault
@@ -57,7 +26,7 @@
 
 - name: wait till the Pod vault-0 is Ready
   shell:
-    cmd: sleep 150
+    cmd: sleep 300
 
 - name: execute vault init and get output
   kubernetes.core.k8s_exec:
