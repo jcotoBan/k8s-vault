@@ -54,6 +54,10 @@
   shell: 
     cmd: kubectl port-forward svc/vault -n vault 8200:8200 &
 
+- name: wait till the Pod vault-0 is Ready
+  shell:
+    cmd: sleep 10
+
 - name: Wait for Port Forward to Start
   ansible.builtin.wait_for:
     host: localhost
