@@ -29,3 +29,6 @@
     apt:
       name: helm
       state: present
+
+- name: Install kubectl
+  command: snap install kubectl --classic
