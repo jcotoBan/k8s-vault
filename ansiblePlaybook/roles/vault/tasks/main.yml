@@ -42,29 +42,45 @@
     unseal_key_1: "{{ command_output.stdout_lines[0] | regex_replace('Unseal Key 1: ', '') }}"
     unseal_key_2: "{{ command_output.stdout_lines[1] | regex_replace('Unseal Key 2: ', '') }}"
     unseal_key_3: "{{ command_output.stdout_lines[2] | regex_replace('Unseal Key 3: ', '') }}"
-    unseal_key_4: "{{ command_output.stdout_lines[3] | regex_replace('Unseal Key 4: ', '') }}"
-    unseal_key_5: "{{ command_output.stdout_lines[4] | regex_replace('Unseal Key 5: ', '') }}"
     initial_root_token: "{{ command_output.stdout_lines[6] | regex_replace('Initial Root Token: ', '') }}"
 
 
-- name: execute vault unseal keys
+- name: execute vault unseal key 1
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault operator unseal $unseal_key_1 && vault operator unseal $unseal_key_2 && vault operator unseal $unseal_key_3 && vault login $initial_root_token
+    command: vault operator unseal $unseal_key_1
 
+- name: execute vault unseal key 2
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault operator unseal $unseal_key_2
+
+- name: execute vault unseal key 3
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault operator unseal $unseal_key_3
+
+- name: execute initial login
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault login $initial_root_token
 
 - name: create vault policy
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: |
-      vault policy write demo-policy -<<EOF
-      path "*"
-      {
-        capabilities = ["read"]
-      }
-      EOF && vault auth enable kubernetes
+    command: vault policy write demo-policy -<<EOF\npath \"*\"\n{\n  capabilities = [\"read\"]\n}\nEOF
+
+
+- name: enable k8s auth
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault auth enable kubernetes
 
 
 - name: Set env required to k8s auth
