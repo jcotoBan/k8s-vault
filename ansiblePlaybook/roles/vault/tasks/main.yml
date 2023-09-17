@@ -67,7 +67,7 @@
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault login $initial_root_token
+    command: vault login "{{ initial_root_token }}"
 
 - name: create vault policy
   kubernetes.core.k8s_exec:
