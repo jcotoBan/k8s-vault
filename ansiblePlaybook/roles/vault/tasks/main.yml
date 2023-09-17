@@ -69,11 +69,27 @@
     pod: vault-0
     command: vault login "{{ initial_root_token }}"
 
-- name: create vault policy
+- name: create vault file
+  blockinfile:
+    path: /tmp/vault-policy
+    block: |
+      path "*"                                                  
+      {  capabilities = ["read"]                
+      }   
+
+- name: Copy policy to container
+  kubernetes.core.k8s_cp:
+    namespace: vault
+    pod: vault-0
+    remote_path: /tmp/vault-policy
+    local_path: /tmp/vault-policy
+
+
+- name: apply vault policy
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault policy write demo-policy -<<EOF\npath \"*\"\n{\n  capabilities = [\"read\"]\n}\nEOF
+    command: vault policy write demo-policy /tmp/vault-policy
 
 
 - name: enable k8s auth
