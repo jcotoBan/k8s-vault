@@ -49,19 +49,19 @@
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault operator unseal $unseal_key_1
+    command: vault operator unseal "{{ unseal_key_1 }}"
 
 - name: execute vault unseal key 2
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault operator unseal $unseal_key_2
+    command: vault operator unseal "{{ unseal_key_2 }}"
 
 - name: execute vault unseal key 3
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault operator unseal $unseal_key_3
+    command: vault operator unseal "{{ unseal_key_3 }}"
 
 - name: execute initial login
   kubernetes.core.k8s_exec:
