@@ -26,7 +26,7 @@
 
 - name: wait till the Pod vault-0 is Ready
   shell:
-    cmd: sleep 300
+    cmd: sleep 200
 
 - name: execute vault init and get output
   kubernetes.core.k8s_exec:
@@ -53,16 +53,13 @@
 - name: Start kubectl Port Forward
   shell: 
     cmd: kubectl port-forward svc/vault -n vault 8200:8200 &
-    async: 600
-    poll: 0
-    ignore_errors: yes
 
 - name: Wait for Port Forward to Start
   ansible.builtin.wait_for:
     host: localhost
     port: 8200
     delay: 10
-    timeout: 300
+    timeout: 200
     state: started
 
 - name: Unseal and login vault
