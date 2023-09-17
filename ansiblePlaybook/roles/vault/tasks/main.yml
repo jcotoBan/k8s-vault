@@ -72,10 +72,12 @@
 - name: create vault file
   blockinfile:
     path: /tmp/vault-policy
+    create: true  
     block: |
       path "*"                                                  
       {  capabilities = ["read"]                
-      }   
+      } 
+
 
 - name: Copy policy to container
   kubernetes.core.k8s_cp:
