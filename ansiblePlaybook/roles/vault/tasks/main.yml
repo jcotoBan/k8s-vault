@@ -104,18 +104,22 @@
 - name: Gather Kubernetes API Server Address
   command: kubectl exec vault-0 -n vault -- printenv | grep KUBERNETES_PORT_443_TCP_ADDR | cut -f 2- -d "=" | tr -d " "
   register: k8s_host_result
+  ignore_errors: true
 
 - name: Gather Kubernetes CA Certificate
   command: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode
   register: k8s_cacert_result
+  ignore_errors: true
 
 - name: Gather Service Account Secret Name
   command: kubectl get serviceaccount vault -n vault -o jsonpath='{.secrets[0].name}'
   register: secret_name_result
+  ignore_errors: true
 
 - name: Gather Token from Secret
   command: kubectl get secret {{ secret_name_result.stdout }} -n vault -o jsonpath='{.data.token}' | base64 --decode
   register: tr_account_token_result
+  ignore_errors: true
 
 - name: Set Environment Variables
   set_fact:
