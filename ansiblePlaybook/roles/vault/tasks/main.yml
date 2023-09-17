@@ -52,7 +52,7 @@
 
 - name: Start kubectl Port Forward
   shell: 
-    cmd: nohub kubectl port-forward svc/vault -n vault 8200:8200 &
+    cmd: nohup kubectl port-forward svc/vault -n vault 8200:8200 &
 
 - name: wait till the Pod service is ready
   shell:
