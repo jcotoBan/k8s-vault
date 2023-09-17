@@ -101,19 +101,35 @@
     command: vault auth enable kubernetes
 
 
-- name: Set env required to k8s auth
-  shell: |
-    k8s_host="$(kubectl exec vault-0 -n vault -- printenv | grep KUBERNETES_PORT_443_TCP_ADDR | cut -f 2- -d "=" | tr -d " ")"
-    k8s_port="443"            
-    k8s_cacert="$(kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode)"
-    secret_name="$(kubectl get serviceaccount vault -n vault -o jsonpath='{.secrets[0].name}')"
-    tr_account_token="$(kubectl get secret ${secret_name} -n vault -o jsonpath='{.data.token}' | base64 --decode)"
+- name: Gather Kubernetes API Server Address
+  command: kubectl exec vault-0 -n vault -- printenv | grep KUBERNETES_PORT_443_TCP_ADDR | cut -f 2- -d "=" | tr -d " "
+  register: k8s_host_result
+
+- name: Gather Kubernetes CA Certificate
+  command: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode
+  register: k8s_cacert_result
+
+- name: Gather Service Account Secret Name
+  command: kubectl get serviceaccount vault -n vault -o jsonpath='{.secrets[0].name}'
+  register: secret_name_result
+
+- name: Gather Token from Secret
+  command: kubectl get secret {{ secret_name_result.stdout }} -n vault -o jsonpath='{.data.token}' | base64 --decode
+  register: tr_account_token_result
+
+- name: Set Environment Variables
+  set_fact:
+    k8s_host: "{{ k8s_host_result.stdout }}"
+    k8s_port: "443"
+    k8s_cacert: "{{ k8s_cacert_result.stdout }}"
+    secret_name: "{{ secret_name_result.stdout }}"
+    tr_account_token: "{{ tr_account_token_result.stdout }}"
 
 - name: write vault authentication
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault write auth/kubernetes/config token_reviewer_jwt="${tr_account_token}" kubernetes_host="https://${k8s_host}:${k8s_port}" kubernetes_ca_cert="${k8s_cacert}" disable_issuer_verification=true
+    command: vault write auth/kubernetes/config token_reviewer_jwt="{{ tr_account_token }}" kubernetes_host="https://{{ k8s_host }}:{{ k8s_port }}" kubernetes_ca_cert="{{ k8s_cacert }}" disable_issuer_verification=true
 
 #External secrets setup
 
