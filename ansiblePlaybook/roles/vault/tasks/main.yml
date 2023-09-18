@@ -199,44 +199,46 @@
     pod: vault-0
     command: vault kv put kv/path/to/my/secret password=secretpassword
 
-- name: Create a Kubernetes SecretStore
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: external-secrets.io/v1beta1
-      kind: SecretStore
-      metadata:
-        name: vault-backend
-        namespace: default
-      spec:
-        provider:
-          vault:
-            server: "http://vault.vault:8200"
-            path: "kv"
-            version: "v2"
-            auth:
-              kubernetes:
-                mountPath: "kubernetes"
-                role: "demo-role"
 
-- name: Create a Kubernetes ExternalSecret
-  kubernetes.core.k8s:
-    state: present
-    definition:
-      apiVersion: external-secrets.io/v1beta1
-      kind: ExternalSecret
-      metadata:
-        name: vault-example
-        namespace: default
-      spec:
-        secretStoreRef:
-          name: vault-backend
-          kind: SecretStore
-        target:
-          name: example-sync
-        data:
-        - secretKey: mysecret
-          remoteRef:
-            key: path/to/my/secret
-            property: password
+#The section below can be uncommented or edited accordingly. For demo purposes this will be performed manually.
+#- name: Create a Kubernetes SecretStore
+#  kubernetes.core.k8s:
+#    state: present
+#    definition:
+#      apiVersion: external-secrets.io/v1beta1
+#      kind: SecretStore
+#      metadata:
+#        name: vault-backend
+#        namespace: default
+#      spec:
+#        provider:
+#          vault:
+#            server: "http://vault.vault:8200"
+#            path: "kv"
+#            version: "v2"
+#            auth:
+#              kubernetes:
+#                mountPath: "kubernetes"
+#                role: "demo-role"
+
+#- name: Create a Kubernetes ExternalSecret
+#  kubernetes.core.k8s:
+#    state: present
+#    definition:
+#      apiVersion: external-secrets.io/v1beta1
+#      kind: ExternalSecret
+#      metadata:
+#        name: vault-example
+#        namespace: default
+#      spec:
+#        secretStoreRef:
+#          name: vault-backend
+#          kind: SecretStore
+#        target:
+#          name: example-sync
+#        data:
+#        - secretKey: mysecret
+#          remoteRef:
+#            key: path/to/my/secret
+#            property: password
       
