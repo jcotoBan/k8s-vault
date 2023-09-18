@@ -107,7 +107,7 @@
   ignore_errors: true
 
 - name: Gather Kubernetes CA Certificate
-  command: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}' | base64 --decode
+  command: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[].cluster.certificate-authority-data}'
   register: k8s_cacert_result
   ignore_errors: true
 
@@ -117,7 +117,7 @@
   ignore_errors: true
 
 - name: Gather Token from Secret
-  command: kubectl get secret {{ secret_name_result.stdout }} -n vault -o jsonpath='{.data.token}' | base64 --decode
+  command: kubectl get secret {{ secret_name_result.stdout }} -n vault -o jsonpath='{.data.token}'
   register: tr_account_token_result
   ignore_errors: true
 
@@ -125,9 +125,9 @@
   set_fact:
     k8s_host: "{{ k8s_host_result.stdout }}"
     k8s_port: "443"
-    k8s_cacert: "{{ k8s_cacert_result.stdout }}"
+    k8s_cacert: "{{ k8s_cacert_result.stdout | b64decode }}"
     secret_name: "{{ secret_name_result.stdout }}"
-    tr_account_token: "{{ tr_account_token_result.stdout }}"
+    tr_account_token: "{{ tr_account_token_result.stdout | b64decode }}"
 
 - name: write vault authentication
   kubernetes.core.k8s_exec:
@@ -167,13 +167,13 @@
     demo_secret_name: "{{ demo_secret_name_result.stdout }}"
 
 - name: gather external dns service account token 
-  command: kubectl get secret "{{ demo_secret_name }}" -n external-secrets -o jsonpath='{.data.token}' | base64 --decode
+  command: kubectl get secret "{{ demo_secret_name }}" -n external-secrets -o jsonpath='{.data.token}'
   register: demo_account_token_result
   ignore_errors: true
 
 - name: set vault env for edns token name 
   set_fact:
-    demo_account_token: "{{ demo_account_token_result.stdout }}"
+    demo_account_token: "{{ demo_account_token_result.stdout | b64decode }}"
 
 - name: Write auth endpoint
   kubernetes.core.k8s_exec:
