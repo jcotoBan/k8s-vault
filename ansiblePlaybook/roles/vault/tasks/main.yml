@@ -181,13 +181,23 @@
     pod: vault-0
     command: vault write auth/kubernetes/role/demo-role bound_service_account_names=external-secrets bound_service_account_namespaces=external-secrets policies=demo-policy ttl=24h
 
-
 - name: Write auth endpoint token 
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
     command: vault write auth/kubernetes/login role=demo-role jwt="{{ demo_account_token }}" iss=https://kubernetes.vault.svc.cluster.local
 
+- name: enable a KeyValue engine endpoint 
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault secrets enable -version=2 kv
+
+- name: Adding example secret
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: vault kv put kv/path/to/my/secret password=secretpassword
 
 - name: Create a Kubernetes SecretStore
   kubernetes.core.k8s:
@@ -200,14 +210,14 @@
         namespace: default
       spec:
         provider:
-        vault:
-          server: "http://vault.vault:8200"
-          path: "kv"
-          version: "v2"
-          auth:
-            kubernetes:
-              mountPath: "kubernetes"
-              role: "demo-role"
+          vault:
+            server: "http://vault.vault:8200"
+            path: "kv"
+            version: "v2"
+            auth:
+              kubernetes:
+                mountPath: "kubernetes"
+                role: "demo-role"
 
 - name: Create a Kubernetes ExternalSecret
   kubernetes.core.k8s:
@@ -225,7 +235,7 @@
         target:
           name: example-sync
         data:
-        - secretKey: foobar
+        - secretKey: mysecret
           remoteRef:
             key: path/to/my/secret
             property: password
