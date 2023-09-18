@@ -189,7 +189,7 @@
     command: vault write auth/kubernetes/login role=demo-role jwt="{{ demo_account_token }}" iss=https://kubernetes.vault.svc.cluster.local
 
 
-- name: Create a Kubernetes SecretStorre
+- name: Create a Kubernetes SecretStore
   kubernetes.core.k8s:
     state: present
     definition:
@@ -197,6 +197,7 @@
       kind: SecretStore
       metadata:
         name: vault-backend
+        namespace: default
       spec:
         provider:
         vault:
@@ -216,6 +217,7 @@
       kind: ExternalSecret
       metadata:
         name: vault-example
+        namespace: default
       spec:
         secretStoreRef:
           name: vault-backend
