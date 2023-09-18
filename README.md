@@ -87,7 +87,7 @@ And, a  Linode volume (vault setup):
 
 All the required tools to manage the cluster and the objects will be installed on your linode box, you can either keep it for management, or just delete it and use your own setup.
 
-After all this fancy deployment, what does it do?
+Great, all setup clear, but what does it do?
 
 <p align="center">
   <img src="img/10.png" />
