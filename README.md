@@ -176,8 +176,12 @@ kubectl get secrets password-secret -o jsonpath='{.data.foobar}' | base64 -d
   <img src="img/11.jpg" />
 </p>
 
-Reference docs:
+Reference docs/resources:
 
 https://blog.opstree.com/2023/08/08/introduction-to-external-secret-operator/
+https://craftech.io/blog/manage-your-kubernetes-secrets-with-hashicorp-vault/
+https://developer.hashicorp.com/vault/tutorials/policies/policies
+https://github.com/external-secrets/external-secrets
+https://www.youtube.com/watch?v=0-5A5vkpvVs&t=813s
 
 
