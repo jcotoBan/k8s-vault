@@ -1,6 +1,6 @@
 # Securing kubernetes secrets on LKE with vault/External secrets.
 
-![](imgs/architectureoverview.jpg)
+![](img/1.png)
 
 This repo and guide provides an easy way to start using kubernetes secrets in a secure manner with the use of other tools. These tools, along with the small demo are all automated, but with enough knowledge of vault and external secrets you will be able to take advantage of this setup.
 
