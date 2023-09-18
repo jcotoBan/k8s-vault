@@ -111,7 +111,7 @@
   register: k8s_cacert_result
   ignore_errors: true
 
-- name: Gather Service Account Secret Name
+- name: gather service account secret name
   command: kubectl get serviceaccount vault -n vault -o jsonpath='{.secrets[0].name}'
   register: secret_name_result
   ignore_errors: true
@@ -121,7 +121,7 @@
   register: tr_account_token_result
   ignore_errors: true
 
-- name: Set Environment Variables
+- name: set vault env for k8s auth
   set_fact:
     k8s_host: "{{ k8s_host_result.stdout }}"
     k8s_port: "443"
@@ -155,30 +155,38 @@
   kubernetes.core.helm:
     name: external-secrets
     chart_ref: external-secrets/external-secrets
-    release_namespace: external-secrets
+    release_namespace: external-secrets 
 
-- name: Set env required to k8s auth endpoint
-  shell: |
-    demo_secret_name="$(kubectl get serviceaccount external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}')"
-    demo_account_token="$(kubectl get secret ${demo_secret_name} -n external-secrets -o jsonpath='{.data.token}' | base64 --decode)" 
+- name: gather external dns service account secret name
+  command: kubectl get serviceaccount external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}')
+  register: demo_secret_name_result
+  ignore_errors: true
+
+- name: set vault env for edns secret name 
+  set_fact:
+    demo_secret_name: "{{ demo_secret_name_result.stdout }}"
+
+- name: gather external dns service account token 
+  command: kubectl get secret "{{ demo_secret_name }}" -n external-secrets -o jsonpath='{.data.token}' | base64 --decode
+  register: demo_account_token_result
+  ignore_errors: true
+
+- name: set vault env for edns token name 
+  set_fact:
+    demo_account_token: "{{ demo_account_token_result.stdout }}"
 
 - name: Write auth endpoint
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: |
-      vault write auth/kubernetes/role/demo-role \
-      bound_service_account_names=external-secrets \
-      bound_service_account_namespaces=external-secrets \
-      policies=demo-policy \
-      ttl=24h
+    command: vault write auth/kubernetes/role/demo-role bound_service_account_names=external-secrets bound_service_account_namespaces=external-secrets policies=demo-policy ttl=24h
 
 
 - name: Write auth endpoint token 
   kubernetes.core.k8s_exec:
     namespace: vault
     pod: vault-0
-    command: vault write auth/kubernetes/login role=demo-role jwt=$demo_account_token iss=https://kubernetes.vault.svc.cluster.local
+    command: vault write auth/kubernetes/login role=demo-role jwt="{{ demo_account_token }}" iss=https://kubernetes.vault.svc.cluster.local
 
 
 - name: Create a Kubernetes SecretStorre
