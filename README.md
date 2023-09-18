@@ -28,11 +28,15 @@ Login to linode, and access https://cloud.linode.com/stackscripts/1233285
 
 1-Click on deploy new linode:
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/2.jpg" />
+</p>
 
 2- Fill out the required fields:
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/3.jpg" />
+</p>
 
 The most important fields:
 
@@ -44,35 +48,50 @@ The data center of your LKE cluster: This will be the region where the LKE clust
 
 The plan for your cluster nodes: The Linode plan for the LKE nodes, only dedicated cpu family can be chosen.
 
-![](imgs/architectureoverview.jpg)
-
 Next select the plan for the linode that will provision the setup. It can be a shared cpu linode.
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/4.jpg" />
+</p>
+
 
 Then click, create linode.
+
+<p align="center">
+  <img src="img/8.jpg" />
+</p>
 
 At the end there will be 3 entities created.
 
 The linode that triggered the ansible script:
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/7.jpg" />
+</p>
 
 A kubernetes cluster:
 
-![](imgs/architectureoverview.jpg)
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/5.jpg" />
+</p>
+
+<p align="center">
+  <img src="img/6.jpg" />
+</p>
 
 And, a  Linode volume (vault setup):
 
-![](imgs/architectureoverview.jpg)
-
+<p align="center">
+  <img src="img/9.jpg" />
+</p>
 
 All the required tools to manage the cluster and the objects will be installed on your linode box, you can either keep it for management, or just delete it and use your own setup.
 
 After all this fancy deployment, what does it do?
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/10.png" />
+</p>
 
 What this setup does is to run a Hashicorp vault inside kubernetes, and that way keep our secrets encrypted plus any benefit added of using vault (rotation, key management, etc). Through external secrets, we will be able to generate secrets in a secure manner using vault kubernetes authentication.
 
@@ -153,7 +172,9 @@ After that, if all went correctly, we should see a secret on our default namespa
 kubectl get secrets password-secret -o jsonpath='{.data.foobar}' | base64 -d
 ```
 
-![](imgs/architectureoverview.jpg)
+<p align="center">
+  <img src="img/11.jpg" />
+</p>
 
 Reference docs:
 
