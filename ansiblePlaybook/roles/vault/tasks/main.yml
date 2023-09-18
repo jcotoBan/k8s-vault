@@ -158,7 +158,7 @@
     release_namespace: external-secrets 
 
 - name: gather external dns service account secret name
-  command: kubectl get serviceaccount external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}')
+  command: kubectl get serviceaccount external-secrets -n external-secrets -o jsonpath='{.secrets[0].name}'
   register: demo_secret_name_result
   ignore_errors: true
 
