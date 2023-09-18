@@ -4,10 +4,6 @@
   <img src="img/1.png" />
 </p>
 
-<p align="center" width="100%">
-    <img width="33%" src="img/1.png">
-</p>
-
 This repo and guide provides an easy way to start using kubernetes secrets in a secure manner with the use of other tools. These tools, along with the small demo are all automated, but with enough knowledge of vault and external secrets you will be able to take advantage of this setup.
 
 The guide assumes a bit of knowledge of hashicorp vault, external secrets and kubernetes, as it goes quickly over a very short overview.
